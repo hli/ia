@@ -135,8 +135,8 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
       end
       start_index = statistics =~ /200 3262/
       if start_index != 0
-        NewRelic::IA::CLI.log.warn "varnish: unexpected stats output from #{hostname_port}: #{statistics}"
-        logger.info "varnish: unable to connect to varnish node at #{hostname_port}"
+        NewRelic::IA::CLI.log.warn "varnish: unexpected stats output from #{hostname}: #{statistics}"
+        logger.info "varnish: unable to connect to varnish node at #{hostname}"
         break
       end
       end_index = statistics =~ /\n\n/
