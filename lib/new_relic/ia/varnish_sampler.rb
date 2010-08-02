@@ -57,9 +57,11 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
           @last_stats[hostname] = nil #{}
         end        
       end
-
-      aggregate_stats
-      debug "done with aggs"    
+      
+      if !@last_stats.has_value(nil)?
+        aggregate_stats
+        debug "done with aggs"
+      end
     end
   end
 
@@ -143,7 +145,7 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
       if end_index
         return statistics
       end
-    rescue SocketError => e
+    rescue => e
       NewRelic::IA::CLI.log.warn "varnish: unable to connect to varnish node at #{hostname}: #{e.message}"
       logger.info "varnish: unable to connect to varnish node at #{hostname}"
       logger.error "varnish: #{e.message}"
