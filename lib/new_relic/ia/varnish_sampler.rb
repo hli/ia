@@ -57,8 +57,8 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
           @last_stats[hostname] = nil #{}
         end        
       end
-      
-      if !@last_stats.has_value(nil)?
+
+      if !@last_stats.has_value?(nil)
         aggregate_stats
         debug "done with aggs"
       end
