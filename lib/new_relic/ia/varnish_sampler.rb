@@ -136,14 +136,12 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
       if !statistics || statistics.length == 0
         break
       end
-      start_index = statistics =~ /^\s+\d+\sClient connections accepted\s$/
-      if start_index != 0
+      unless statistics =~ /\s+\d+\s+Client connections accepted\s/
         NewRelic::IA::CLI.log.warn "varnish: unexpected stats output from #{hostname}: #{statistics}"
         logger.info "varnish: unable to connect to varnish node at #{hostname}"
         return
       end
-      end_index = statistics =~ /\n\n/
-      if end_index
+      if statistics =~ /\n\n/
         return statistics
       end
     rescue => e
@@ -156,7 +154,7 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
   end
 
   def parse_stats(hostname, stats_text)
-    start_index = stats_text =~ /^\s+\d+\s+Client connections accepted\s$/
+    start_index = stats_text =~ /\s+\d+\s+Client connections accepted\s/
     stats_text = stats_text[start_index ... stats_text.length].strip if start_index
     end_index = stats_text =~ /\n\n/
     stats_text = stats_text[0 ... end_index].strip if end_index
