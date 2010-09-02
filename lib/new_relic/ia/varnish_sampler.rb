@@ -42,7 +42,8 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
       stats_text = issue_stats hostname
       down_servers << hostname unless stats_text
     end
-    raise NewRelic::Agent::Sampler::Unsupported, "Servers not available: #{down_servers.join(", ")}" unless down_servers.empty?
+    logger.error "Servers not available: #{down_servers.join(", ")}" unless down_servers.empty?
+    #raise NewRelic::Agent::Sampler::Unsupported, "Servers not available: #{down_servers.join(", ")}" unless down_servers.empty?
   end
 
   # This gets called once a minute in the agent worker thread.  It
@@ -135,7 +136,7 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
       if !statistics || statistics.length == 0
         break
       end
-      start_index = statistics =~ /200 3262/
+      start_index = statistics =~ /^\s+\d+\sClient connections accepted\s$/
       if start_index != 0
         NewRelic::IA::CLI.log.warn "varnish: unexpected stats output from #{hostname}: #{statistics}"
         logger.info "varnish: unable to connect to varnish node at #{hostname}"
@@ -155,9 +156,9 @@ class NewRelic::IA::VarnishSampler < NewRelic::Agent::Sampler
   end
 
   def parse_stats(hostname, stats_text)
-    start_index = stats_text =~ /\n/
-    end_index = stats_text =~ /\n\n/
+    start_index = stats_text =~ /^\s+\d+\s+Client connections accepted\s$/
     stats_text = stats_text[start_index ... stats_text.length].strip if start_index
+    end_index = stats_text =~ /\n\n/
     stats_text = stats_text[0 ... end_index].strip if end_index
     
     stats_array = stats_text.split(/\s\s+/)
